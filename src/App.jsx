@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase, formatTS } from './lib/supabase';
 import Header       from './components/Header';
+import LoginScreen  from './components/LoginScreen';
 import SensorCard   from './components/SensorCard';
 import InfoPanel    from './components/InfoPanel';
 import MiniCards    from './components/MiniCards';
@@ -18,6 +19,12 @@ function sd(arr) {
 }
 
 export default function App() {
+  // ── Auth ────────────────────────────────────────────────────────────────────
+  const [session, setSession] = useState(null);
+  const [authChecking, setAuthChecking] = useState(true);
+  const [authBusy, setAuthBusy] = useState(false);
+  const [authError, setAuthError] = useState('');
+
   // ── Settings ────────────────────────────────────────────────────────────────
   const [settings, setSettings] = useState({
     tempTarget: 25.0, tempThreshold: 2.0, tempSlope: 0.03,
@@ -50,8 +57,67 @@ export default function App() {
     toastTimer.current = setTimeout(() => setToast(''), 3500);
   }, []);
 
+  // ── Auth bootstrap / listener ───────────────────────────────────────────────
+  useEffect(() => {
+    let active = true;
+
+    async function bootstrapAuth() {
+      const { data, error } = await supabase.auth.getSession();
+      if (!active) return;
+
+      if (error) {
+        setAuthError("Impossible de vérifier la session.");
+      }
+
+      setSession(data?.session ?? null);
+      setAuthChecking(false);
+    }
+
+    bootstrapAuth();
+
+    const {
+      data: { subscription }
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession);
+      setAuthError('');
+    });
+
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+      clearTimeout(toastTimer.current);
+    };
+  }, []);
+
+  async function handleLogin(email, password) {
+    setAuthBusy(true);
+    setAuthError('');
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      setAuthError(error.message || "Erreur d'authentification.");
+    }
+
+    setAuthBusy(false);
+  }
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    setHistory([]);
+    lastIdRef.current = 0;
+    setLastId(0);
+    setConnected(false);
+    setEspOnline(false);
+    setLastSeenTs(null);
+    setTotalPts(0);
+    setStatus('⏳ Connexion…');
+  }
+
   // ── Load history from Supabase ───────────────────────────────────────────────
   useEffect(() => {
+    if (!session) return;
+
     async function load() {
       const { data, error } = await supabase
         .from('data')
@@ -82,10 +148,12 @@ export default function App() {
       showToast(`✅ ${rows.length} points chargés depuis Supabase`);
     }
     load();
-  }, [showToast]);
+  }, [session, showToast]);
 
   // ── Poll new data every second ───────────────────────────────────────────────
   useEffect(() => {
+    if (!session) return;
+
     const interval = setInterval(async () => {
       const { data, error } = await supabase
         .from('data')
@@ -131,7 +199,15 @@ export default function App() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [lastSeenTs]);
+  }, [session, lastSeenTs]);
+
+  if (authChecking) {
+    return <main className="loading-screen">Vérification de la session...</main>;
+  }
+
+  if (!session) {
+    return <LoginScreen onLogin={handleLogin} busy={authBusy} error={authError} />;
+  }
 
   // ── Computed KPIs ────────────────────────────────────────────────────────────
   const latest  = history[history.length - 1] || null;
@@ -196,6 +272,7 @@ export default function App() {
       <Header
         onExport={exportCSV}
         onUpload={(parsed) => showToast(`✅ ${parsed.length} points chargés`)}
+        onLogout={handleLogout}
       />
 
       <div className="top-row">

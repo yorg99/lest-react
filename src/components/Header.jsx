@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 
-export default function Header({ onExport, onUpload }) {
+export default function Header({ onExport, onUpload, onLogout }) {
   const fileRef = useRef();
 
   function handleFile(e) {
@@ -46,6 +46,7 @@ export default function Header({ onExport, onUpload }) {
         <button className="export-btn" onClick={onExport}>⬇ Export CSV</button>
         <input ref={fileRef} type="file" accept=".csv,.xlsx" style={{display:'none'}} onChange={handleFile}/>
         <button className="upload-btn" onClick={() => fileRef.current.click()}>⬆ Charger Profil</button>
+        {onLogout ? <button className="logout-btn" onClick={onLogout}>🔓 Se déconnecter</button> : null}
       </div>
     </header>
   );
