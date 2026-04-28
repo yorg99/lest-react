@@ -232,15 +232,15 @@ export default function App() {
 
   // ── Export CSV ───────────────────────────────────────────────────────────────
   function exportCSV() {
-    const rows = ['Timestamp,ID,Temperature,Cible_T,Ecart_T,Humidite,H_cible'];
+    const rows = ['Timestamp          ID                Temperature          Cible_T          Ecart_T          Humidite          H_cible          '];
     history.forEach(d => {
       const td = (d.avg - settings.tempTarget).toFixed(2);
-      rows.push(`${d.label},${d.id},${d.avg.toFixed(2)},${settings.tempTarget.toFixed(1)},${td},${d.hum.toFixed(1)},${settings.humTarget.toFixed(1)}`);
+      rows.push(`${d.label}               ${d.id}          ${d.avg.toFixed(2)}                           ${settings.tempTarget.toFixed(1)}                ${td}                ${d.hum.toFixed(1)}                     ${settings.humTarget.toFixed(1)}            `);
     });
     const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
     const a    = document.createElement('a');
     a.href     = URL.createObjectURL(blob);
-    a.download = `LEST_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.csv`;
+    a.download = `LEST_${new Date().toISOString().slice(0,40).replace(/:/g,'-')}.csv`;
     a.click();
     showToast('⬇ Export CSV téléchargé');
   }
