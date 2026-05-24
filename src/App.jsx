@@ -252,16 +252,14 @@ export default function App() {
   // ── Export CSV ───────────────────────────────────────────────────────────────
   function exportCSV() {
     const rows = [
-      "Timestamp,ID,Temperature,PT100,Cible_T,Ecart_T,Humidite,H_cible",
+      "Timestamp,ID,Temperature,PT100,Ecart_T,Humidite",
     ];
     history.forEach((d) => {
-      const td = d.avg != null ? (d.avg - settings.tempTarget).toFixed(2) : "";
+      const td = d.avg != null && settings.tempTarget != null ? (d.avg - settings.tempTarget).toFixed(2) : "";
       const pt100 = d.pt100 != null ? d.pt100.toFixed(2) : "";
       const temp = d.avg != null ? d.avg.toFixed(2) : "";
       const hum = d.hum != null ? d.hum.toFixed(1) : "";
-      rows.push(
-        `${d.label},${d.id},${temp},${pt100},${settings.tempTarget.toFixed(1)},${td},${hum},${settings.humTarget.toFixed(1)}`,
-      );
+      rows.push(`${d.label},${d.id},${temp},${pt100},${td},${hum}`);
     });
     const blob = new Blob([rows.join("\n")], { type: "text/csv" });
     const a = document.createElement("a");

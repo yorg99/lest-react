@@ -33,10 +33,6 @@ export default function SettingsModal({ type, settings, onSave, onClose }) {
 
         <div className="m-grid">
           <div className="m-field">
-            <label>Valeur Cible</label>
-            <input type="number" step="0.1" value={form.target} onChange={e => set('target', e.target.value)}/>
-          </div>
-          <div className="m-field">
             <label>Seuil Alerte (±)</label>
             <input type="number" step="0.1" value={form.threshold} onChange={e => set('threshold', e.target.value)}/>
           </div>

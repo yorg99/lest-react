@@ -52,89 +52,44 @@ export default function ChartPanel({
     [history],
   );
 
-  // Temperature charts: Siemens (reference) and PT100
-  const siemensData = useMemo(() => {
+  // Combined chart data: Siemens (reference) with optional PT100 overlay
+  const combinedData = useMemo(() => {
     const datasets = [
       {
-        label: "Siemens (réf)",
+        label: 'Siemens (réf)',
         data: siemensArray,
-        borderColor: "#79c0ff",
-        backgroundColor: "rgba(121,192,255,.06)",
+        borderColor: '#79c0ff',
+        backgroundColor: 'rgba(121,192,255,.06)',
         borderWidth: 2,
         pointRadius: 0,
         tension: 0.4,
         fill: true,
-        yAxisID: "yT",
+        yAxisID: 'yT',
         spanGaps: true,
-      },
-      {
-        label: "Cible T",
-        data: history.map(() => settings.tempTarget),
-        borderColor: "rgba(121,192,255,.35)",
-        borderWidth: 1.5,
-        borderDash: [5, 3],
-        pointRadius: 0,
-        tension: 0,
-        yAxisID: "yT",
-      },
+      }
     ];
 
-    // overlay PT100 on the Siemens chart when available (helps visibility/debugging)
-    if (pt100Array.some((v) => v != null)) {
+    // add PT100 as an overlay on the same chart (single source of truth)
+    if (pt100Array.some(v => v != null)) {
       datasets.push({
-        label: "PT100",
+        label: 'PT100',
         data: pt100Array,
-        borderColor: "#f85149",
-        backgroundColor: "rgba(248,81,73,0)",
-        borderWidth: 1.5,
+        borderColor: '#f85149',
+        backgroundColor: 'rgba(248,81,73,0)',
+        borderWidth: 2,
         pointRadius: 0,
         tension: 0.4,
         fill: false,
-        yAxisID: "yT",
+        yAxisID: 'yT',
         spanGaps: true,
-        borderDash: [4, 2],
       });
     }
 
     return { labels, datasets };
-  }, [siemensArray, pt100Array, labels, settings.tempTarget, history]);
+  }, [siemensArray, pt100Array, labels]);
 
-  const pt100Data = useMemo(
-    () => ({
-      labels,
-      datasets: [
-        {
-          label: "PT100",
-          data: pt100Array,
-          borderColor: "#f85149",
-          backgroundColor: "rgba(248,81,73,.07)",
-          borderWidth: 2,
-          pointRadius: 0,
-          tension: 0.4,
-          fill: true,
-          yAxisID: "yT",
-          spanGaps: true,
-        },
-        {
-          label: "Cible T",
-          data: history.map(() => settings.tempTarget),
-          borderColor: "rgba(248,81,73,.4)",
-          borderWidth: 1.5,
-          borderDash: [5, 3],
-          pointRadius: 0,
-          tension: 0,
-          yAxisID: "yT",
-        },
-      ],
-    }),
-    [pt100Array, labels, settings.tempTarget],
-  );
-
-  // quick presence check for PT100 data (used to show a helpful placeholder)
-  const hasPt100 = useMemo(
-    () => pt100Array.some((v) => v != null),
-    [pt100Array],
-  );
+  // quick presence check for PT100 data (used for debug counts)
+  const hasPt100 = useMemo(() => pt100Array.some((v) => v != null), [pt100Array]);
 
   useEffect(() => {
     // small debug log to help track missing data issues in the browser console
@@ -162,16 +117,7 @@ export default function ChartPanel({
           fill: true,
           yAxisID: "yH",
         },
-        {
-          label: "Cible HR",
-          data: history.map(() => settings.humTarget),
-          borderColor: "rgba(57,208,216,.4)",
-          borderWidth: 1.5,
-          borderDash: [5, 3],
-          pointRadius: 0,
-          tension: 0,
-          yAxisID: "yH",
-        },
+        // target removed
       ],
     }),
     [history, labels, settings.humTarget],
@@ -222,6 +168,9 @@ export default function ChartPanel({
           maxTicksLimit: 6,
         },
         border: { display: false },
+        // add some padding so the last tick/line isn't clipped
+        suggestedMin: undefined,
+        suggestedMax: undefined,
       },
       yH: {
         type: "linear",
@@ -247,13 +196,11 @@ export default function ChartPanel({
 
   const legendItems = isH
     ? [
-        { l: "HR", c: "#39d0d8", d: false },
-        { l: "Cible HR", c: "#39d0d8", d: true },
+        { l: "HR", c: "#39d0d8", d: false }
       ]
     : [
         { l: "Siemens (réf)", c: "#79c0ff", d: false },
-        { l: "PT100", c: "#f85149", d: false },
-        { l: "Cible T", c: "#f85149", d: true },
+        { l: "PT100", c: "#f85149", d: false }
       ];
 
   return (
@@ -291,28 +238,12 @@ export default function ChartPanel({
               <Line data={humData} options={humOptions} />
             ) : (
               <>
-                <div style={{ height: 180 }}>
+                <div style={{ height: 360, paddingBottom: 8 }}>
                   <Line
-                    key={`siemens-${labels.length}-${siemensArray.filter((v) => v != null).length}`}
-                    data={siemensData}
+                    key={`combined-${labels.length}-${siemensArray.filter((v) => v != null).length}`}
+                    data={combinedData}
                     options={siemensOptions}
                   />
-                </div>
-                <div style={{ height: 180, marginTop: 12 }}>
-                  {hasPt100 ? (
-                    <Line
-                      key={`pt100-${labels.length}-${pt100Array.filter((v) => v != null).length}`}
-                      data={pt100Data}
-                      options={pt100Options}
-                    />
-                  ) : (
-                    <div
-                      style={{ padding: 18, color: "#7d8590", fontSize: 13 }}
-                    >
-                      Aucun PT100 disponible — vérifier la colonne{" "}
-                      <code>pt100_temp</code> ou l'envoi depuis l'appareil.
-                    </div>
-                  )}
                 </div>
               </>
             )}

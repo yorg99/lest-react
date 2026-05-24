@@ -86,8 +86,7 @@ export default function SensorCard({
             className="mv"
             style={{ color: isTemp ? "var(--red)" : "var(--cyan)" }}
           >
-            {target.toFixed(1)}
-            {unit}
+            {target !== null ? `${target.toFixed(1)}${unit}` : '—'}
           </div>
         </div>
         <div className="mi">
