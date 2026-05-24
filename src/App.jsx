@@ -131,8 +131,7 @@ export default function App() {
       const { data, error } = await supabase
         .from("data")
         .select("id, temperature, pt100_temp, humidity, created_at")
-        .order("id", { ascending: false })
-        .limit(MAX_PTS);
+        .order("id", { ascending: false });
 
       if (error || !data) {
         showToast("❌ Erreur Supabase");
@@ -252,15 +251,44 @@ export default function App() {
   // ── Export CSV ───────────────────────────────────────────────────────────────
   function exportCSV() {
     const rows = [
-      "Timestamp,ID,Temperature,PT100,Ecart_T,Humidite",
+      "Timestamp,ID,Temperature,PT100,PT100_Filtered,Ecart_T,Humidite",
     ];
-    history.forEach((d) => {
-      const td = d.avg != null && settings.tempTarget != null ? (d.avg - settings.tempTarget).toFixed(2) : "";
+    // build a map of PT100 filtered values (cumulative average of earlier valid pt100 readings)
+    // This ensures the exported CSV uses the same filtered values as the on-screen table.
+    const filterMap = new Map();
+    let sum = 0;
+    let count = 0;
+    for (const item of history) {
+      const raw = item.pt100;
+      const num =
+        raw === null || raw === undefined || raw === "" ? NaN : Number(raw);
+      if (Number.isFinite(num)) {
+        sum += num;
+        count += 1;
+      }
+      // cumulative average including the current reading so the first value
+      // equals the PT100 reading when there's only one sample.
+      filterMap.set(item.id, count > 0 ? sum / count : null);
+    }
+
+    // export rows in the same order as the on-screen table (oldest first)
+    const display = [...history];
+    for (const d of display) {
+      const filtered = filterMap.get(d.id);
+      const filteredStr = filtered != null ? filtered.toFixed(2) : "";
+
+      const td =
+        d.avg != null && settings.tempTarget != null
+          ? (d.avg - settings.tempTarget).toFixed(2)
+          : "";
       const pt100 = d.pt100 != null ? d.pt100.toFixed(2) : "";
       const temp = d.avg != null ? d.avg.toFixed(2) : "";
       const hum = d.hum != null ? d.hum.toFixed(1) : "";
-      rows.push(`${d.label},${d.id},${temp},${pt100},${td},${hum}`);
-    });
+
+      rows.push(
+        `${d.label},${d.id},${temp},${pt100},${filteredStr},${td},${hum}`,
+      );
+    }
     const blob = new Blob([rows.join("\n")], { type: "text/csv" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -278,8 +306,7 @@ export default function App() {
     const { data } = await supabase
       .from("data")
       .select("id, temperature, pt100_temp, humidity, created_at")
-      .order("id", { ascending: false })
-      .limit(MAX_PTS);
+      .order("id", { ascending: false });
     if (data) {
       const rows = data.reverse().map((r) => ({
         id: r.id,
