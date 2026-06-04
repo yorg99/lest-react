@@ -2,6 +2,8 @@
    LEST — Global Styles (React version)
    ═══════════════════════════════════════════════════════════════════════════ */
 
+@import "tailwindcss";
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
