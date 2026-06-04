@@ -5,7 +5,6 @@ export default function SettingsModal({ type, settings, onSave, onClose }) {
   const [form, setForm] = useState({
     target:    isT ? settings.tempTarget    : settings.humTarget,
     threshold: isT ? settings.tempThreshold : settings.humThreshold,
-    slope:     settings.tempSlope,
     dur:       Math.round(settings.totalDur / 3600),
     name:      settings.testName
   });
@@ -16,7 +15,6 @@ export default function SettingsModal({ type, settings, onSave, onClose }) {
     const updated = isT
       ? { tempTarget: parseFloat(form.target) || settings.tempTarget,
           tempThreshold: parseFloat(form.threshold) || settings.tempThreshold,
-          tempSlope: parseFloat(form.slope) || settings.tempSlope,
           totalDur: (parseFloat(form.dur) || 72) * 3600,
           testName: form.name || settings.testName }
       : { humTarget: parseFloat(form.target) || settings.humTarget,
@@ -38,14 +36,10 @@ export default function SettingsModal({ type, settings, onSave, onClose }) {
           </div>
           {isT && (
             <div className="m-field">
-              <label>Pente (°C/min)</label>
-              <input type="number" step="0.01" value={form.slope} onChange={e => set('slope', e.target.value)}/>
+              <label>Durée Essai (h)</label>
+              <input type="number" step="1" value={form.dur} onChange={e => set('dur', e.target.value)}/>
             </div>
           )}
-          <div className="m-field">
-            <label>Durée Essai (h)</label>
-            <input type="number" step="1" value={form.dur} onChange={e => set('dur', e.target.value)}/>
-          </div>
         </div>
 
         <div className="m-field">

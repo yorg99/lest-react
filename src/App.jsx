@@ -10,6 +10,7 @@ import StatusBar from "./components/StatusBar";
 import SettingsModal from "./components/SettingsModal";
 
 const MAX_PTS = 80;
+const HISTORY_LIMIT = 2000;
 const TOTAL_DUR = 72 * 3600;
 
 function sd(arr) {
@@ -31,7 +32,6 @@ export default function App() {
   const [settings, setSettings] = useState({
     tempTarget: 25.0,
     tempThreshold: 2.0,
-    tempSlope: 0.03,
     humTarget: 60.0,
     humThreshold: 5.0,
     testName: "Étalonnage — Étuve LEST #1",
@@ -55,6 +55,7 @@ export default function App() {
   const [startTime] = useState(Date.now());
 
   const lastIdRef = useRef(0);
+  const lastSeenRef = useRef(null);
   const toastTimer = useRef(null);
 
   const showToast = useCallback((msg) => {
@@ -131,7 +132,8 @@ export default function App() {
       const { data, error } = await supabase
         .from("data")
         .select("id, temperature, pt100_temp, humidity, created_at")
-        .order("id", { ascending: false });
+        .order("id", { ascending: false })
+        .limit(HISTORY_LIMIT);
 
       if (error || !data) {
         showToast("❌ Erreur Supabase");
@@ -175,7 +177,7 @@ export default function App() {
 
       if (error || !data || data.length === 0) {
         setEspOnline(false);
-        setStatus(`⚠️ ESP hors ligne · dernier: ${formatTS(lastSeenTs)}`);
+        setStatus(`⚠️ ESP hors ligne · dernier: ${formatTS(lastSeenRef.current)}`);
         return;
       }
 
@@ -212,7 +214,13 @@ export default function App() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [session, lastSeenTs]);
+  }, [session]);
+
+  // Mirror lastSeenTs into a ref so the polling interval can read the latest
+  // value without re-binding on every poll.
+  useEffect(() => {
+    lastSeenRef.current = lastSeenTs;
+  }, [lastSeenTs]);
 
   if (authChecking) {
     return (
@@ -306,7 +314,8 @@ export default function App() {
     const { data } = await supabase
       .from("data")
       .select("id, temperature, pt100_temp, humidity, created_at")
-      .order("id", { ascending: false });
+      .order("id", { ascending: false })
+      .limit(HISTORY_LIMIT);
     if (data) {
       const rows = data.reverse().map((r) => ({
         id: r.id,
@@ -328,7 +337,6 @@ export default function App() {
     <>
       <Header
         onExport={exportCSV}
-        onUpload={(parsed) => showToast(`✅ ${parsed.length} points chargés`)}
         onLogout={handleLogout}
       />
 

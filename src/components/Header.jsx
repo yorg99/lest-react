@@ -1,28 +1,6 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
-export default function Header({ onExport, onUpload, onLogout }) {
-  const fileRef = useRef();
-
-  function handleFile(e) {
-    const f = e.target.files[0];
-    if (!f) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      try {
-        const lines  = ev.target.result.split('\n').filter(l => l.trim());
-        const parsed = [];
-        for (let i = 1; i < lines.length; i++) {
-          const cols = lines[i].split(/[,|\t]/);
-          if (cols.length < 3) continue;
-          parsed.push({ tt: parseFloat(cols[1]) || 25, ht: parseFloat(cols[2]) || 60 });
-        }
-        if (parsed.length) onUpload(parsed);
-      } catch {}
-    };
-    reader.readAsText(f);
-    e.target.value = '';
-  }
-
+export default function Header({ onExport, onLogout }) {
   return (
     <header className="header">
       <div className="h-left">
@@ -44,8 +22,6 @@ export default function Header({ onExport, onUpload, onLogout }) {
 
       <div className="h-right">
         <button className="export-btn" onClick={onExport}>⬇ Export CSV</button>
-        <input ref={fileRef} type="file" accept=".csv,.xlsx" style={{display:'none'}} onChange={handleFile}/>
-        <button className="upload-btn" onClick={() => fileRef.current.click()}>⬆ Charger Profil</button>
         {onLogout ? <button className="logout-btn" onClick={onLogout}>🔓 Se déconnecter</button> : null}
       </div>
     </header>

@@ -356,7 +356,7 @@ export default function ChartPanel({
                     </td>
                     <td>{settings.humTarget.toFixed(1)}</td>
                     <td className="td-y">
-                      ±{(0.06 + Math.random() * 0.02).toFixed(3)}°C
+                      ±{U.toFixed(3)}°C
                     </td>
                     <td>
                       <span

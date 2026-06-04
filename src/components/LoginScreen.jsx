@@ -12,10 +12,10 @@ export default function LoginScreen({ onLogin, busy, error }) {
   return (
     <main className="login-screen">
       <section className="login-card">
-        <div className="login-badge">Acces securise</div>
+        <div className="login-badge">Accès sécurisé</div>
         <h1 className="login-title">Connexion au tableau LEST</h1>
         <p className="login-subtitle">
-          Connectez-vous avec votre compte Supabase pour acceder au suivi en temps reel.
+          Connectez-vous avec votre compte Supabase pour accéder au suivi en temps réel.
         </p>
 
         <form className="login-form" onSubmit={handleSubmit}>
