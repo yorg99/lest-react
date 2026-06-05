@@ -16,7 +16,7 @@ export interface UseLiveData {
   lastSeenTs: string | null;
   totalPts: number;
   status: string;
-  reload: () => Promise<void>;
+  reload: () => Promise<boolean>;
 }
 
 export function useLiveData(session: Session | null): UseLiveData {
@@ -34,20 +34,27 @@ export function useLiveData(session: Session | null): UseLiveData {
     lastSeenRef.current = lastSeenTs;
   }, [lastSeenTs]);
 
-  const reload = useCallback(async () => {
+  const reload = useCallback(async (): Promise<boolean> => {
     const result = await fetchHistory();
     if (result.error) {
       setStatus("❌ Erreur Supabase");
-      return;
+      return false;
     }
     setHistory(result.rows);
     if (result.rows.length > 0) {
       lastIdRef.current = result.lastId;
       setLastId(result.lastId);
       setLastSeenTs(result.lastSeenTs);
-      setTotalPts(result.totalPts);
+      setTotalPts(result.lastId);
+      setStatus("✅ Supabase · Live");
+    } else {
+      lastIdRef.current = 0;
+      setLastId(0);
+      setLastSeenTs(null);
+      setTotalPts(0);
       setStatus("✅ Supabase · Live");
     }
+    return true;
   }, []);
 
   useEffect(() => {
@@ -75,9 +82,9 @@ export function useLiveData(session: Session | null): UseLiveData {
         lastIdRef.current = result.lastId;
         setLastId(result.lastId);
         setLastSeenTs(result.lastSeenTs);
-        setTotalPts(result.totalPts);
-        setStatus("✅ Supabase · Live");
+        setTotalPts(result.lastId);
       }
+      setStatus("✅ Supabase · Live");
     })();
 
     return () => {
@@ -111,6 +118,9 @@ export function useLiveData(session: Session | null): UseLiveData {
         if (row.id === lastIdRef.current) return;
         lastIdRef.current = row.id;
         setLastId(row.id);
+        // totalPts tracks the highest serial id seen, not a row count —
+        // used by InfoPanel as "Dernier ID". With a serial PK this also
+        // doubles as the number of points inserted so far.
         setTotalPts(row.id);
 
         const point: DataRow = {

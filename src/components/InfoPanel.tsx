@@ -56,7 +56,7 @@ export default function InfoPanel({ status, espOnline, totalPts, lastSeenTs }: I
         <span className="ip-v">{formatTS(lastSeenTs)}</span>
       </div>
       <div className="ip-row">
-        <span className="ip-k">Points Supabase</span>
+        <span className="ip-k">Dernier ID</span>
         <span className="ip-v">{totalPts}</span>
       </div>
     </div>

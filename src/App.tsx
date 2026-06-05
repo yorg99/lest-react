@@ -37,8 +37,9 @@ export default function App() {
   }
 
   async function handleReset() {
-    show("🔄 Session réinitialisée — rechargement…");
-    await reload();
+    show("🔄 Réinitialisation…");
+    const ok = await reload();
+    show(ok ? "✅ Session réinitialisée" : "❌ Échec du rechargement");
   }
 
   if (authChecking) {

@@ -31,6 +31,12 @@ export default function SensorCard({
   const unit = isTemp ? "°C" : "%";
   const delta = value !== null ? +(value - target).toFixed(2) : null;
   const outOfRange = delta !== null && Math.abs(delta) > threshold;
+  const homogClass =
+    homog === null ? "" : homog > 3 ? "err" : homog > 1.5 ? "warn" : "ok";
+  const minMax =
+    min !== null && max !== null
+      ? `${min.toFixed(1)} / ${max.toFixed(1)}${unit}`
+      : "—";
 
   const valRef = useRef<HTMLDivElement | null>(null);
   const prevVal = useRef<number | null>(value);
@@ -113,9 +119,7 @@ export default function SensorCard({
           <>
             <div className="mi">
               <div className="ml">Homogén.</div>
-              <div
-                className={`mv ${homog! > 3 ? "err" : homog! > 1.5 ? "warn" : "ok"}`}
-              >
+              <div className={`mv ${homogClass}`}>
                 {homog !== null ? `${homog.toFixed(2)}°C` : "—"}
               </div>
             </div>
@@ -131,11 +135,7 @@ export default function SensorCard({
         )}
         <div className="mi">
           <div className="ml">Min / Max</div>
-          <div className="mv">
-            {min !== null
-              ? `${min.toFixed(1)} / ${max!.toFixed(1)}${unit}`
-              : "—"}
-          </div>
+          <div className="mv">{minMax}</div>
         </div>
       </div>
     </div>

@@ -20,7 +20,8 @@ export default function MiniCards({ history, tempTarget }: MiniCardsProps) {
       <div className="ch-grid">
         {Array.from({ length: MINI_CARD_COUNT }, (_, i) => {
           const d = last9[i];
-          const diff = d ? +(d.avg! - tempTarget).toFixed(2) : null;
+          const diff =
+            d && d.avg !== null ? +(d.avg - tempTarget).toFixed(2) : null;
           const ab = diff !== null ? Math.abs(diff) : 0;
           const cls = ab > 2 ? "err" : ab > 1 ? "warn" : "ok";
           return (

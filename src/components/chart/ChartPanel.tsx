@@ -62,7 +62,7 @@ export default function ChartPanel({
       {tab === "chart" && (
         <>
           <div className="chart-inner">
-            <RealtimeChart history={history} />
+            <RealtimeChart history={history} mode={chartMode} />
           </div>
           <div className="leg-row">
             {LEGEND[chartMode].map((it) => (

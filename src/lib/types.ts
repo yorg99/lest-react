@@ -1,5 +1,3 @@
-export type Toast = string;
-
 export interface Settings {
   tempTarget: number;
   tempThreshold: number;

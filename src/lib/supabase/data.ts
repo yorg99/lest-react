@@ -20,6 +20,8 @@ export interface HistoryFetchResult {
 }
 
 function mapRows(data: RawRow[]): DataRow[] {
+  // Supabase returns id-DESC (newest first). Flip to ascending so
+  // callers can read history chronologically: rows[0] = oldest, last row = newest.
   return data
     .map((r) => ({
       id: r.id,

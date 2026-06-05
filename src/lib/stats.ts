@@ -39,6 +39,10 @@ export function computeKpis(history: DataRow[]): Kpis {
   const uc = Math.sqrt(uR ** 2 + uE ** 2 + uRep ** 2);
   const U = UNCERTAINTY.k * uc;
   const hom = tempMax !== null && tempMin !== null ? tempMax - tempMin : 0;
+  // Endpoint slope (°C/min): total change across the last `window` points
+  // extrapolated to one minute. Cheap and intuitive, but sensitive to noise
+  // on the two endpoints — replace with a least-squares fit if a smoother
+  // drift number is needed.
   const slope =
     rec30.length > 2
       ? (((rec30[rec30.length - 1]! - rec30[0]!) / rec30.length) * 60).toFixed(3)

@@ -39,18 +39,18 @@ export default function SettingsModal({
   }
 
   function handleSave() {
+    const nextName = form.name || settings.testName;
     const updated: Partial<Settings> = isT
       ? {
           tempTarget: num(form.target, settings.tempTarget),
           tempThreshold: num(form.threshold, settings.tempThreshold),
           totalDur: (num(form.dur, 72) || 72) * 3600,
-          testName: form.name || settings.testName,
+          testName: nextName,
         }
       : {
           humTarget: num(form.target, settings.humTarget),
           humThreshold: num(form.threshold, settings.humThreshold),
-          totalDur: (num(form.dur, 72) || 72) * 3600,
-          testName: form.name || settings.testName,
+          testName: nextName,
         };
     onSave(updated);
   }

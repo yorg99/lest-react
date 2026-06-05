@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,7 +12,7 @@ import {
 import type { ChartData } from "chart.js";
 import { Line } from "react-chartjs-2";
 import { createOptions } from "./chartOptions";
-import type { DataRow } from "../../lib/types";
+import type { ChartMode, DataRow } from "../../lib/types";
 
 ChartJS.register(
   CategoryScale,
@@ -26,13 +26,16 @@ ChartJS.register(
 
 export interface RealtimeChartProps {
   history: DataRow[];
+  mode: ChartMode;
 }
 
 const SIEMENS = "#79c0ff";
 const SIEMENS_FILL = "rgba(121,192,255,.06)";
 const PT100 = "#f85149";
+const HUM = "#39d0d8";
+const HUM_FILL = "rgba(57,208,216,.07)";
 
-export default function RealtimeChart({ history }: RealtimeChartProps) {
+export default function RealtimeChart({ history, mode }: RealtimeChartProps) {
   const labels = useMemo(() => history.map((d) => d.label), [history]);
   const siemensArray = useMemo(
     () => history.map((d) => (d.avg != null ? Number(d.avg) : null)),
@@ -48,13 +51,17 @@ export default function RealtimeChart({ history }: RealtimeChartProps) {
       }),
     [history],
   );
+  const humArray = useMemo(
+    () => history.map((d) => (d.hum != null ? Number(d.hum) : null)),
+    [history],
+  );
 
   const hasPt100 = useMemo(
     () => pt100Array.some((v) => v != null),
     [pt100Array],
   );
 
-  const data: ChartData<"line"> = useMemo(() => {
+  const tempData: ChartData<"line"> = useMemo(() => {
     const datasets: ChartData<"line">["datasets"] = [
       {
         label: "Siemens (réf)",
@@ -92,39 +99,36 @@ export default function RealtimeChart({ history }: RealtimeChartProps) {
       datasets: [
         {
           label: "HR (%)",
-          data: history.map((d) => d.hum),
-          borderColor: "#39d0d8",
-          backgroundColor: "rgba(57,208,216,.07)",
+          data: humArray,
+          borderColor: HUM,
+          backgroundColor: HUM_FILL,
           borderWidth: 2,
           pointRadius: 0,
           tension: 0.4,
           fill: true,
           yAxisID: "yH",
+          spanGaps: true,
         },
       ],
     }),
-    [history, labels],
+    [labels, humArray],
   );
 
-  useEffect(() => {
-    console.debug(
-      "[RealtimeChart] labels=%d, Siemens samples=%d, PT100 samples=%d",
-      labels.length,
-      siemensArray.filter((v) => v != null).length,
-      pt100Array.filter((v) => v != null).length,
+  if (mode === "hum") {
+    return (
+      <div style={{ height: 360, paddingBottom: 8 }}>
+        <Line data={humData} options={createOptions(true, HUM)} />
+      </div>
     );
-  }, [labels, siemensArray, pt100Array]);
+  }
 
   return (
     <div style={{ height: 360, paddingBottom: 8 }}>
       <Line
         key={`combined-${labels.length}-${siemensArray.filter((v) => v != null).length}`}
-        data={data}
+        data={tempData}
         options={createOptions(false, SIEMENS)}
       />
-      <div style={{ display: "none" }}>
-        <Line data={humData} options={createOptions(true, "#39d0d8")} />
-      </div>
     </div>
   );
 }

@@ -4,6 +4,17 @@ import type { DataRow, Settings } from "./types";
 export const CSV_HEADER =
   "Timestamp,ID,Temperature,PT100,PT100_Filtered,Ecart_T,Humidite";
 
+function fullTimestamp(iso: string): string {
+  return new Date(iso).toLocaleString("fr-FR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+}
+
 export function buildCsvRows(
   history: DataRow[],
   settings: Settings,
@@ -21,7 +32,7 @@ export function buildCsvRows(
     const temp = d.avg !== null && d.avg !== undefined ? d.avg.toFixed(2) : "";
     const hum = d.hum !== null && d.hum !== undefined ? d.hum.toFixed(1) : "";
     rows.push(
-      `${d.label},${d.id},${temp},${pt100},${filteredStr},${td},${hum}`,
+      `${fullTimestamp(d.created_at)},${d.id},${temp},${pt100},${filteredStr},${td},${hum}`,
     );
   }
   return rows;
@@ -29,12 +40,16 @@ export function buildCsvRows(
 
 export function downloadCsv(rows: string[], filename: string): void {
   const blob = new Blob([rows.join("\n")], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
+  a.href = url;
   a.download = filename;
   a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 export function defaultCsvFilename(): string {
-  return `LEST_${new Date().toISOString().slice(0, 19).replace(/:/g, "-")}.csv`;
+  // Minute-granularity keeps filenames unique enough for human exports
+  // while staying readable (e.g. LEST_2026-06-05T01-06.csv).
+  return `LEST_${new Date().toISOString().slice(0, 16).replace(/:/g, "-")}.csv`;
 }
