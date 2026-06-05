@@ -6,6 +6,7 @@ import {
   Scripts,
 } from '@tanstack/react-router';
 import appCss from '../index.css?url';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 export const Route = createRootRoute({
   head: () => ({
@@ -29,7 +30,9 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <RootDocument>
-      <Outlet />
+      <ErrorBoundary>
+        <Outlet />
+      </ErrorBoundary>
     </RootDocument>
   );
 }

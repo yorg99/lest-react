@@ -1,4 +1,18 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
+
+export interface SensorCardProps {
+  type: "temp" | "hum";
+  value: number | null;
+  altValue?: number | null;
+  target: number;
+  threshold: number;
+  uncert: number | null;
+  min: number | null;
+  max: number | null;
+  homog?: number | null;
+  slope?: string | null;
+  onSettings: () => void;
+}
 
 export default function SensorCard({
   type,
@@ -9,17 +23,17 @@ export default function SensorCard({
   uncert,
   min,
   max,
-  homog,
-  slope,
+  homog = null,
+  slope = null,
   onSettings,
-}) {
+}: SensorCardProps) {
   const isTemp = type === "temp";
   const unit = isTemp ? "°C" : "%";
   const delta = value !== null ? +(value - target).toFixed(2) : null;
   const outOfRange = delta !== null && Math.abs(delta) > threshold;
 
-  const valRef = useRef();
-  const prevVal = useRef(value);
+  const valRef = useRef<HTMLDivElement | null>(null);
+  const prevVal = useRef<number | null>(value);
 
   useEffect(() => {
     if (value !== null && value !== prevVal.current && valRef.current) {
@@ -52,7 +66,7 @@ export default function SensorCard({
         className="sc-val"
         style={{ color: isTemp ? "var(--red)" : "var(--cyan)" }}
       >
-        {value !== null ? `${value.toFixed(1)}${unit}` : "--.-" + unit}
+        {value !== null ? `${value.toFixed(1)}${unit}` : `--.-${unit}`}
       </div>
 
       {isTemp && altValue !== null ? (
@@ -86,7 +100,7 @@ export default function SensorCard({
             className="mv"
             style={{ color: isTemp ? "var(--red)" : "var(--cyan)" }}
           >
-            {target !== null ? `${target.toFixed(1)}${unit}` : '—'}
+            {target !== null ? `${target.toFixed(1)}${unit}` : "—"}
           </div>
         </div>
         <div className="mi">
@@ -100,7 +114,7 @@ export default function SensorCard({
             <div className="mi">
               <div className="ml">Homogén.</div>
               <div
-                className={`mv ${homog > 3 ? "err" : homog > 1.5 ? "warn" : "ok"}`}
+                className={`mv ${homog! > 3 ? "err" : homog! > 1.5 ? "warn" : "ok"}`}
               >
                 {homog !== null ? `${homog.toFixed(2)}°C` : "—"}
               </div>
@@ -119,7 +133,7 @@ export default function SensorCard({
           <div className="ml">Min / Max</div>
           <div className="mv">
             {min !== null
-              ? `${min.toFixed(1)} / ${max.toFixed(1)}${unit}`
+              ? `${min.toFixed(1)} / ${max!.toFixed(1)}${unit}`
               : "—"}
           </div>
         </div>

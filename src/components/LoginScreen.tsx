@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
+import { useState } from "react";
 
-export default function LoginScreen({ onLogin, busy, error }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export interface LoginScreenProps {
+  onLogin: (email: string, password: string) => void;
+  busy: boolean;
+  error: string;
+}
 
-  function handleSubmit(e) {
+export default function LoginScreen({ onLogin, busy, error }: LoginScreenProps) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     onLogin(email, password);
   }
@@ -44,7 +50,7 @@ export default function LoginScreen({ onLogin, busy, error }) {
           {error ? <p className="login-error">{error}</p> : null}
 
           <button type="submit" className="login-btn" disabled={busy}>
-            {busy ? 'Connexion en cours...' : 'Se connecter'}
+            {busy ? "Connexion en cours..." : "Se connecter"}
           </button>
         </form>
       </section>

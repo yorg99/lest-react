@@ -1,6 +1,9 @@
-import React from 'react';
+export interface HeaderProps {
+  onExport: () => void;
+  onLogout?: () => void;
+}
 
-export default function Header({ onExport, onLogout }) {
+export default function Header({ onExport, onLogout }: HeaderProps) {
   return (
     <header className="header">
       <div className="h-left">
@@ -16,13 +19,15 @@ export default function Header({ onExport, onLogout }) {
         <span className="badge b-iso">NF EN 60068-3-5</span>
         <span className="badge b-tun">TUNAC</span>
         <span className="badge b-live">
-          <span className="live-dot"/>Live · 1 Hz
+          <span className="live-dot" />Live · 1 Hz
         </span>
       </div>
 
       <div className="h-right">
         <button className="export-btn" onClick={onExport}>⬇ Export CSV</button>
-        {onLogout ? <button className="logout-btn" onClick={onLogout}>🔓 Se déconnecter</button> : null}
+        {onLogout ? (
+          <button className="logout-btn" onClick={onLogout}>🔓 Se déconnecter</button>
+        ) : null}
       </div>
     </header>
   );
