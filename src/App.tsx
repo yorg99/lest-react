@@ -3,7 +3,6 @@ import ChartPanel from "./components/chart/ChartPanel";
 import Header from "./components/Header";
 import InfoPanel from "./components/InfoPanel";
 import LoginScreen from "./components/LoginScreen";
-import MiniCards from "./components/MiniCards";
 import SensorCard from "./components/SensorCard";
 import SettingsModal from "./components/SettingsModal";
 import StatusBar from "./components/StatusBar";
@@ -53,51 +52,51 @@ export default function App() {
 
   return (
     <>
-      <Header onExport={handleExport} onLogout={logout} />
+      <div className="dashboard">
+        <Header onExport={handleExport} onLogout={logout} />
 
-      <div className="top-row">
-        <SensorCard
-          type="temp"
-          value={latest?.avg ?? null}
-          altValue={latest?.pt100 ?? null}
-          target={settings.tempTarget}
-          threshold={settings.tempThreshold}
-          uncert={kpis.U}
-          min={kpis.tempMin}
-          max={kpis.tempMax}
-          homog={kpis.hom}
-          slope={kpis.slope}
-          onSettings={() => setModal("temp")}
-        />
-        <SensorCard
-          type="hum"
-          value={latest?.hum ?? null}
-          target={settings.humTarget}
-          threshold={settings.humThreshold}
-          uncert={null}
-          min={kpis.humMin}
-          max={kpis.humMax}
-          onSettings={() => setModal("hum")}
-        />
-        <InfoPanel
-          status={status}
-          espOnline={espOnline}
-          totalPts={totalPts}
-          lastSeenTs={lastSeenTs}
+        <div className="top-row">
+          <SensorCard
+            type="temp"
+            value={latest?.avg ?? null}
+            altValue={latest?.pt100 ?? null}
+            target={settings.tempTarget}
+            threshold={settings.tempThreshold}
+            uncert={kpis.U}
+            min={kpis.tempMin}
+            max={kpis.tempMax}
+            homog={kpis.hom}
+            slope={kpis.slope}
+            onSettings={() => setModal("temp")}
+          />
+          <SensorCard
+            type="hum"
+            value={latest?.hum ?? null}
+            target={settings.humTarget}
+            threshold={settings.humThreshold}
+            uncert={null}
+            min={kpis.humMin}
+            max={kpis.humMax}
+            onSettings={() => setModal("hum")}
+          />
+          <InfoPanel
+            status={status}
+            espOnline={espOnline}
+            totalPts={totalPts}
+            lastSeenTs={lastSeenTs}
+          />
+        </div>
+
+        <ChartPanel
+          history={history}
+          tab={tab}
+          setTab={setTab}
+          chartMode={chartMode}
+          setChartMode={setChartMode}
+          settings={settings}
+          kpis={kpis}
         />
       </div>
-
-      <MiniCards history={history} tempTarget={settings.tempTarget} />
-
-      <ChartPanel
-        history={history}
-        tab={tab}
-        setTab={setTab}
-        chartMode={chartMode}
-        setChartMode={setChartMode}
-        settings={settings}
-        kpis={kpis}
-      />
 
       <StatusBar
         startTime={startTime}

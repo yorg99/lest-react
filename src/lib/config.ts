@@ -4,7 +4,6 @@ export const POLL_INTERVAL_MS = 1000;
 export const ESP_ONLINE_THRESHOLD_S = 10;
 export const HISTORY_LIMIT = 2000;
 export const MAX_CHART_POINTS = 80;
-export const MINI_CARD_COUNT = 9;
 export const TOAST_TTL_MS = 3500;
 export const TOTAL_DUR_SECONDS = 72 * 3600;
 

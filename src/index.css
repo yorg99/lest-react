@@ -26,7 +26,29 @@
 
 html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-mono); font-size: 12px; }
 
-#root { min-height: 100vh; display: flex; flex-direction: column; }
+#root {
+  /* Locked to the viewport so the StatusBar can sit at the bottom
+     and the dashboard middle content scrolls internally. `100dvh`
+     accounts for mobile browser chrome; the `100vh` line is the
+     fallback for older browsers. */
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Scrollable middle region between Header and StatusBar.
+   `padding-bottom` reserves space for the fixed footer so the last
+   row of content is never hidden behind it. */
+.dashboard {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 96px;
+}
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -68,11 +90,12 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 
 /* ── AUTH SCREENS ── */
 .loading-screen {
-  min-height: 100vh; display: grid; place-items: center;
+  height: 100%; display: grid; place-items: center;
   color: var(--muted); font-family: var(--font-main); font-size: 14px;
 }
 .login-screen {
-  min-height: 100vh;
+  height: 100%;
+  overflow-y: auto;
   display: grid;
   place-items: center;
   padding: 24px;
@@ -257,8 +280,14 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 
 /* ── STATUS BAR ── */
 .status-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex; align-items: center; gap: 16px; padding: 10px 20px;
-  background: var(--bg2); border-top: 1px solid var(--border); margin-top: auto;
+  background: var(--bg2); border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  z-index: 10;
 }
 .pwr-btn, .act-btn {
   width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border);
@@ -301,7 +330,7 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 
 /* ── TOAST ── */
 .toast {
-  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px);
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
   background: var(--bg3); border: 1px solid var(--border); color: var(--text);
   padding: 8px 18px; border-radius: 20px; font-size: 11px; opacity: 0;
   transition: all .3s; pointer-events: none; z-index: 200; white-space: nowrap;
