@@ -16,7 +16,8 @@ function fmtSigned(n: number): string {
 
 export default function DataTable({ history, settings, U }: DataTableProps) {
   const filteredById = useMemo(() => buildPt100FilteredMap(history), [history]);
-  const rows = history.slice(0, ROWS);
+  // Take the most recent ROWS entries (history is oldest→newest)
+  const rows = history.slice(-ROWS);
 
   return (
     <div className="table-wrap">
@@ -39,9 +40,10 @@ export default function DataTable({ history, settings, U }: DataTableProps) {
             const tdRef =
               d.avg !== null ? +(d.avg - settings.tempTarget).toFixed(2) : null;
             const pt100FilteredVal = filteredById.get(d.id) ?? null;
+            // ΔT = PT100 − Siemens (raw, not filtered — per column header)
             const delta =
-              d.pt100 !== null && d.avg !== null && pt100FilteredVal !== null
-                ? +(d.avg - pt100FilteredVal).toFixed(2)
+              d.pt100 !== null && d.avg !== null
+                ? +(d.pt100 - d.avg).toFixed(2)
                 : null;
             const ok =
               delta !== null

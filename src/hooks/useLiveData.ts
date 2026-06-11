@@ -11,7 +11,6 @@ import type { DataRow } from "../lib/types";
 
 export interface UseLiveData {
   history: DataRow[];
-  lastId: number;
   espOnline: boolean;
   lastSeenTs: string | null;
   totalPts: number;
@@ -21,7 +20,6 @@ export interface UseLiveData {
 
 export function useLiveData(session: Session | null): UseLiveData {
   const [history, setHistory] = useState<DataRow[]>([]);
-  const [lastId, setLastId] = useState(0);
   const [espOnline, setEspOnline] = useState(false);
   const [lastSeenTs, setLastSeenTs] = useState<string | null>(null);
   const [totalPts, setTotalPts] = useState(0);
@@ -43,13 +41,11 @@ export function useLiveData(session: Session | null): UseLiveData {
     setHistory(result.rows);
     if (result.rows.length > 0) {
       lastIdRef.current = result.lastId;
-      setLastId(result.lastId);
       setLastSeenTs(result.lastSeenTs);
       setTotalPts(result.lastId);
       setStatus("✅ Supabase · Live");
     } else {
       lastIdRef.current = 0;
-      setLastId(0);
       setLastSeenTs(null);
       setTotalPts(0);
       setStatus("✅ Supabase · Live");
@@ -61,7 +57,6 @@ export function useLiveData(session: Session | null): UseLiveData {
     if (!session) {
       setHistory([]);
       lastIdRef.current = 0;
-      setLastId(0);
       setEspOnline(false);
       setLastSeenTs(null);
       setTotalPts(0);
@@ -80,7 +75,6 @@ export function useLiveData(session: Session | null): UseLiveData {
       setHistory(result.rows);
       if (result.rows.length > 0) {
         lastIdRef.current = result.lastId;
-        setLastId(result.lastId);
         setLastSeenTs(result.lastSeenTs);
         setTotalPts(result.lastId);
       }
@@ -117,7 +111,6 @@ export function useLiveData(session: Session | null): UseLiveData {
 
         if (row.id === lastIdRef.current) return;
         lastIdRef.current = row.id;
-        setLastId(row.id);
         // totalPts tracks the highest serial id seen, not a row count —
         // used by InfoPanel as "Dernier ID". With a serial PK this also
         // doubles as the number of points inserted so far.
@@ -143,5 +136,5 @@ export function useLiveData(session: Session | null): UseLiveData {
     return () => clearInterval(interval);
   }, [session]);
 
-  return { history, lastId, espOnline, lastSeenTs, totalPts, status, reload };
+  return { history, espOnline, lastSeenTs, totalPts, status, reload };
 }

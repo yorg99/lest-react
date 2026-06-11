@@ -1,0 +1,25 @@
+tools:
+    shell:
+        allow:
+            - npm run *
+            - git log *
+            - echo *
+            - ls *
+            - head *
+            - git diff *
+            - git show *
+            - cat *
+            - cd *
+            - git stash *
+            - git reflog *
+            - grep *
+            - git ls-tree HEAD *
+            - git cat-file *
+            - xxd
+            - od *
+            - file *
+            - wc *
+            - git status
+            - git checkout HEAD *
+            - python3 *
+            - rm *
