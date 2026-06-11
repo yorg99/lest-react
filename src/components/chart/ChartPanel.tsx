@@ -19,12 +19,12 @@ const TABS: ReadonlyArray<{ key: Tab; label: string }> = [
   { key: "uncert", label: "🔢 Incertitudes" },
 ];
 
-const LEGEND: Record<ChartMode, ReadonlyArray<{ l: string; c: string; d: boolean }>> = {
+const LEGEND: Record<ChartMode, ReadonlyArray<{ l: string; c: string }>> = {
   avg: [
-    { l: "Siemens (réf)", c: "#79c0ff", d: false },
-    { l: "PT100", c: "#f85149", d: false },
+    { l: "Siemens (réf)", c: "#79c0ff" },
+    { l: "PT100", c: "#f85149" },
   ],
-  hum: [{ l: "HR", c: "#39d0d8", d: false }],
+  hum: [{ l: "HR", c: "#39d0d8" }],
 };
 
 export default function ChartPanel({
@@ -67,11 +67,7 @@ export default function ChartPanel({
           <div className="leg-row">
             {LEGEND[chartMode].map((it) => (
               <div key={it.l} className="leg-i">
-                {it.d ? (
-                  <div className="leg-dash" style={{ borderColor: it.c }} />
-                ) : (
-                  <div className="leg-dot" style={{ background: it.c }} />
-                )}
+                <div className="leg-dot" style={{ background: it.c }} />
                 {it.l}
               </div>
             ))}

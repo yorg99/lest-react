@@ -17,18 +17,10 @@ export function computeKpis(history: DataRow[]): Kpis {
     .map((d) => d.hum)
     .filter((v): v is number => v != null);
 
-  let tempMin: number | null = null;
-  let tempMax: number | null = null;
-  for (const t of temps) {
-    if (tempMin === null || t < tempMin) tempMin = t;
-    if (tempMax === null || t > tempMax) tempMax = t;
-  }
-  let humMin: number | null = null;
-  let humMax: number | null = null;
-  for (const h of hums) {
-    if (humMin === null || h < humMin) humMin = h;
-    if (humMax === null || h > humMax) humMax = h;
-  }
+  const tempMin = temps.length > 0 ? Math.min(...temps) : null;
+  const tempMax = temps.length > 0 ? Math.max(...temps) : null;
+  const humMin = hums.length > 0 ? Math.min(...hums) : null;
+  const humMax = hums.length > 0 ? Math.max(...hums) : null;
 
   const rec30 = temps.slice(-UNCERTAINTY.window);
   const sigma = stddev(rec30);

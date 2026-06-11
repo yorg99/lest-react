@@ -15,7 +15,6 @@ export interface HistoryFetchResult {
   rows: DataRow[];
   lastId: number;
   lastSeenTs: string | null;
-  totalPts: number;
   error: string | null;
 }
 
@@ -42,7 +41,7 @@ export async function fetchHistory(limit = HISTORY_LIMIT): Promise<HistoryFetchR
     .limit(limit);
 
   if (error || !data) {
-    return { rows: [], lastId: 0, lastSeenTs: null, totalPts: 0, error: error?.message ?? "fetch failed" };
+    return { rows: [], lastId: 0, lastSeenTs: null, error: error?.message ?? "fetch failed" };
   }
 
   const rows = mapRows(data);
@@ -51,7 +50,6 @@ export async function fetchHistory(limit = HISTORY_LIMIT): Promise<HistoryFetchR
     rows,
     lastId: last ? last.id : 0,
     lastSeenTs: last ? last.created_at : null,
-    totalPts: last ? last.id : 0,
     error: null,
   };
 }

@@ -42,13 +42,7 @@ export default function RealtimeChart({ history, mode }: RealtimeChartProps) {
     [history],
   );
   const pt100Array = useMemo(
-    () =>
-      history.map((d) => {
-        const raw = d.pt100;
-        if (raw === null || raw === undefined) return null;
-        const n = Number(raw);
-        return Number.isFinite(n) ? n : null;
-      }),
+    () => history.map((d) => (d.pt100 != null ? Number(d.pt100) : null)),
     [history],
   );
   const humArray = useMemo(

@@ -28,10 +28,6 @@ export function useLiveData(session: Session | null): UseLiveData {
   const lastIdRef = useRef(0);
   const lastSeenRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    lastSeenRef.current = lastSeenTs;
-  }, [lastSeenTs]);
-
   const reload = useCallback(async (): Promise<boolean> => {
     const result = await fetchHistory();
     if (result.error) {
@@ -41,15 +37,16 @@ export function useLiveData(session: Session | null): UseLiveData {
     setHistory(result.rows);
     if (result.rows.length > 0) {
       lastIdRef.current = result.lastId;
+      lastSeenRef.current = result.lastSeenTs;
       setLastSeenTs(result.lastSeenTs);
       setTotalPts(result.lastId);
-      setStatus("✅ Supabase · Live");
     } else {
       lastIdRef.current = 0;
+      lastSeenRef.current = null;
       setLastSeenTs(null);
       setTotalPts(0);
-      setStatus("✅ Supabase · Live");
     }
+    setStatus("✅ Supabase · Live");
     return true;
   }, []);
 
@@ -75,6 +72,7 @@ export function useLiveData(session: Session | null): UseLiveData {
       setHistory(result.rows);
       if (result.rows.length > 0) {
         lastIdRef.current = result.lastId;
+        lastSeenRef.current = result.lastSeenTs;
         setLastSeenTs(result.lastSeenTs);
         setTotalPts(result.lastId);
       }
@@ -102,6 +100,7 @@ export function useLiveData(session: Session | null): UseLiveData {
         const age = (Date.now() - new Date(row.created_at).getTime()) / 1000;
         const online = age < ESP_ONLINE_THRESHOLD_S;
         setEspOnline(online);
+        lastSeenRef.current = row.created_at;
         setLastSeenTs(row.created_at);
         setStatus(
           online
